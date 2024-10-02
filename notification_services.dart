@@ -12,33 +12,6 @@ import 'package:http/http.dart' as http;
 class FirebaseNotificationServices {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
-  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-
-  void requestNotificationPermission() async {
-    NotificationSettings settings = await messaging.requestPermission(
-        alert: true,
-        announcement: true,
-        badge: true,
-        carPlay: true,
-        criticalAlert: true,
-        provisional: true,
-        sound: true);
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print("user granted permission");
-    } else if (settings.authorizationStatus ==
-        AuthorizationStatus.provisional) {
-      print("user granted provisional permission");
-    } else {
-      AppSettings.openAppSettings(type: AppSettingsType.notification);
-      print("user denied permission");
-    }
-  }
-
-  Future<String> getDeviceToken() async {
-    String? token = await messaging.getToken();
-    return token!;
-  }
 
   void isTokenRefresh() async {
     messaging.onTokenRefresh.listen((event) {
@@ -160,29 +133,6 @@ class FirebaseNotificationServices {
     return accestoken;
   }
 
-// 'https://fcm.googleapis.com/v1/projects/badgr-ios/messages:send'
-// 'https://fcm.googleapis.com/fcm/send'
-  Future<void> sendPushNotification(
-      String fcmToken, String messageBody, String senderName) async {
-    try {
-      String acceskey = await getAccessToken();
-      print('access $acceskey');
-      print('notification sent on fcmToken= $fcmToken');
-      print('notification senderName = $senderName');
-      print('notification messageBody = $messageBody');
-      var url = Uri.parse(
-          'https://fcm.googleapis.com/v1/projects/badgr-ios/messages:send');
-      var headers = {
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $acceskey', // Your FCM server key
-      };
-      String fcm = await getDeviceToken();
-      print("fcm $fcm");
-      var data = {
-        "message": {
-          // "token": fcmToken, // FCM token for the recipient
-          "token": fcm,
-          "notification": {
             "title": senderName,
             "body": messageBody,
           },
